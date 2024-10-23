@@ -20,7 +20,12 @@ public class PlayerServiceDao {
         return players;
     }
 
-    Optional<Player> findPlayerById(int id) {
-        return players.stream().filter(p -> p.id().equals(id)).findFirst();
+    Player findPlayerById(int id) {
+        return players.stream().filter(p -> p.id().equals(id)).findFirst().orElse(null);
+    }
+
+    Player insertPlayer(Player player) {
+        players.add(player);
+        return player;
     }
 }

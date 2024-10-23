@@ -1,10 +1,13 @@
 package com.atroliveira.server.tennis_match.player;
 
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import com.atroliveira.server.tennis_match.utils.exception.PlayerNotFoundException;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -24,6 +27,25 @@ public class PlayerController {
 
     @GetMapping(PLAYERS_PATH + "/{id}")
     public Player retrievePlayerById(@PathVariable int id) {
-        return serviceDao.findPlayerById(id).get();
+        Player player = serviceDao.findPlayerById(id);
+
+        if (player == null)
+            throw new PlayerNotFoundException("id " + id);
+
+        return player;
+    }
+
+    @PostMapping(PLAYERS_PATH)
+    public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
+        Player savedPlayer = serviceDao.insertPlayer(player);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedPlayer.id())
+                .toUri();
+
+        //TODO maybe implement HATEOAS
+
+        return ResponseEntity.created(location).build();
     }
 }
