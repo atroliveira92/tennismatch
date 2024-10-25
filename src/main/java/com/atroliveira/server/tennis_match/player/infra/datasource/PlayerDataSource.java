@@ -24,7 +24,7 @@ public class PlayerDataSource {
     }
 
     public PlayerDTO getPlayerById(int id) {
-        String sql = "SELECT * FROM player where active=true AND id="+String.valueOf(id);
+        String sql = "SELECT * FROM player where active=true AND id="+ id;
         List<PlayerDTO> players = jdbcTemplate.query(sql, new PlayerRowMapper());
 
         return players.stream().findFirst().orElse(null);
@@ -49,5 +49,25 @@ public class PlayerDataSource {
         player.setId(generatedId);
 
         return player;
+    }
+
+    public boolean updatePlayerActiveStatus(int id, boolean active) {
+        String sql = "UPDATE player SET active = ? WHERE id = ?";
+        int rowsUpdated = jdbcTemplate.update(sql, active, id);
+
+        return rowsUpdated >= 1;
+    }
+
+    public boolean updatePlayer(PlayerDTO player) {
+        String sql = "UPDATE player SET username = ?, name = ?, surname = ?, age = ?, active = ? WHERE id = ?";
+        int rowsAffected = jdbcTemplate.update(sql,
+                player.getUsername(),
+                player.getName(),
+                player.getSurname(),
+                player.getAge(),
+                player.isActive(),
+                player.getId());
+
+        return rowsAffected >= 1;
     }
 }

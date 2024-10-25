@@ -30,16 +30,29 @@ public class PlayerRepository {
     }
 
     public Player savePlayer(Player player) {
-        PlayerDTO playerDTO = new PlayerDTO(
+        PlayerDTO playerDTO = playerToDTO(player);
+        playerDTO = dataSource.insertPlayer(playerDTO);
+
+        return mapper.map(playerDTO);
+    }
+
+    public boolean updatePlayer(Player player) {
+        PlayerDTO playerDTO = playerToDTO(player);
+
+        return dataSource.updatePlayer(playerDTO);
+    }
+
+    public boolean deactivatePlayer(int id) {
+        return dataSource.updatePlayerActiveStatus(id, false);
+    }
+
+    private PlayerDTO playerToDTO(Player player) {
+        return new PlayerDTO(
                 player.getId(),
                 player.getUsername(),
                 player.getName(),
                 player.getSurname(),
                 player.getAge(),
                 player.isActive());
-
-        playerDTO = dataSource.insertPlayer(playerDTO);
-
-        return mapper.map(playerDTO);
     }
 }

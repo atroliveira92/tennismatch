@@ -3,7 +3,6 @@ package com.atroliveira.server.tennis_match.player;
 
 import com.atroliveira.server.tennis_match.player.domain.Player;
 import com.atroliveira.server.tennis_match.player.domain.PlayerService;
-import com.atroliveira.server.tennis_match.utils.exception.PlayerNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,12 +28,7 @@ public class PlayerController {
 
     @GetMapping(PLAYERS_PATH + "/{id}")
     public Player retrievePlayerById(@PathVariable("id") int id) {
-        Player player = service.findPlayerById(id);
-
-        if (player == null)
-            throw new PlayerNotFoundException("id " + id);
-
-        return player;
+        return service.findPlayerById(id);
     }
 
     @PostMapping(PLAYERS_PATH)
@@ -47,7 +41,24 @@ public class PlayerController {
                 .toUri();
 
         //TODO maybe implement HATEOAS (associated links)
+        //TODO return the recent created Player
 
         return ResponseEntity.created(location).build();
+    }
+
+    @PutMapping(PLAYERS_PATH + "/{id}")
+    public ResponseEntity<Player> updatePlayer(@PathVariable("id") int id, @Valid @RequestBody Player player) {
+        player.setId(id);
+
+        Player playerUpdated = service.updatePlayer(player);
+
+        return ResponseEntity.ok(playerUpdated);
+    }
+
+    @PatchMapping(PLAYERS_PATH + "/{id}/deactivate")
+    public ResponseEntity<Void> deactivatePlayer(@PathVariable("id") int id) {
+        service.deactivatePlayer(id);
+
+        return ResponseEntity.ok().build();
     }
 }
