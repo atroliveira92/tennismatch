@@ -1,6 +1,8 @@
 package com.atroliveira.server.tennis_match.player;
 
 
+import com.atroliveira.server.tennis_match.player.domain.Player;
+import com.atroliveira.server.tennis_match.player.domain.PlayerService;
 import com.atroliveira.server.tennis_match.utils.exception.PlayerNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -14,20 +16,20 @@ import java.util.List;
 public class PlayerController {
     private static final String PLAYERS_PATH = "/players";
 
-    private PlayerServiceDao serviceDao;
+    private final PlayerService service;
 
-    public PlayerController(PlayerServiceDao serviceDao) {
-        this.serviceDao = serviceDao;
+    public PlayerController(PlayerService service) {
+        this.service = service;
     }
 
     @GetMapping(PLAYERS_PATH)
     public List<Player> retrieveAllPlayers() {
-        return serviceDao.findAll();
+        return service.listAllPlayers();
     }
 
     @GetMapping(PLAYERS_PATH + "/{id}")
-    public Player retrievePlayerById(@PathVariable int id) {
-        Player player = serviceDao.findPlayerById(id);
+    public Player retrievePlayerById(@PathVariable("id") int id) {
+        Player player = service.findPlayerById(id);
 
         if (player == null)
             throw new PlayerNotFoundException("id " + id);
@@ -37,14 +39,14 @@ public class PlayerController {
 
     @PostMapping(PLAYERS_PATH)
     public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
-        Player savedPlayer = serviceDao.insertPlayer(player);
+        Player savedPlayer = service.savePlayer(player);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedPlayer.id())
+                .buildAndExpand(savedPlayer.getId())
                 .toUri();
 
-        //TODO maybe implement HATEOAS
+        //TODO maybe implement HATEOAS (associated links)
 
         return ResponseEntity.created(location).build();
     }
