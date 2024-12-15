@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  tennismatchdb-mysql:
+    image: mysql:latest
+    container_name: tennismatchdb-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: tennis-match-db
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    networks:
+      - springboot-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tennis-match-server:
+    image: tennis-match-server
+    container_name: tennis-match-server
+    depends_on:
+      tennismatchdb-mysql:
+        condition: service_healthy
+    networks:
+      - springboot-network
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:8080"
+
+networks:
+  springboot-network:
+    driver: bridge
