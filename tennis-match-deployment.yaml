@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tennis-match-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tennis-match-server
+  template:
+    metadata:
+      labels:
+        app: tennis-match-server
+    spec:
+      containers:
+        - name: tennis-match-server
+          image: atroliveira92/tennis-match-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: password
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/tennis-match-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tennis-match-server
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: tennis-match-server
