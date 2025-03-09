@@ -14,7 +14,20 @@ the correct values please reach me out.
 
 I'm using Docker to easily deploy locally the whole server configuration. So first make sure you have docker up and running
 in your local machine.
-If you want to deploy locally a new version after changes, you may first build the image running the following command:
+If you want to just local run, you'd need first to run and connect with mysql container by using the following command:
+```
+docker run --name tennis-match-mysql \
+  -e MYSQL_ROOT_PASSWORD=$DB_PASSWORD \
+  -e MYSQL_DATABASE=tennis-match-db \
+  -e MYSQL_USER=$DB_USERNAME \
+  -e MYSQL_PASSWORD=$DB_PASSWORD \
+  -p 3306:3306 \
+  -d mysql:latest
+
+```
+After that just hit run on intellij to run the server.
+
+However, if you want to deploy locally a new version after changes, you may first build the image running the following command:
 ```
 docker build -t tennis-match-server:latest . 
 ```
